@@ -471,6 +471,3 @@ def generate_time_table_result():
     ref.set(timetable_data)
     # Return the modified timetable
     return jsonify({'timetable': timetable_data})  
-
-if __name__ == "__main__":
-    app.run()
