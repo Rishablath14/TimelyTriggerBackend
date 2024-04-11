@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h1>Upload Academic Data</h1>
+    <form action="/upload_academic_data" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx, .xls" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h1>Upload Teachers Data</h1>
+    <form action="/upload_teachers_data" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx, .xls" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h1>Upload Classroom Data</h1>
+    <form action="/upload_classroom_data" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx, .xls" required>
+        <button type="submit">Upload</button>
+    </form>
+    <br>
+    <br>
+    <br>
+    <!-- button to redirect to Generate Time Table page -->
+    <a href="/generate_time_table"><button>Next</button></a>
+</body>
+</html>

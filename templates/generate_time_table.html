@@ -1,0 +1,219 @@
+<!-- generate_time_table.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Time Table</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Generate Time Table</h1>
+    
+    <form id="generateForm" action="/generate_time_table_result" method="POST">
+
+        <label for="shift">Choose a Shift:</label>
+        <select id="shift" name="shift">
+        <!-- Shift options will be dynamically added here -->
+        </select>
+        <br><br>
+        <label for="department">Choose a Department:</label>
+        <select id="department" value="choose a Department" name="department">
+            <option value="" selected disabled>Choose a Department</option>
+            {% for department in departments %}
+                <option value="{{ department }}">{{ department }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="branch">Choose a Branch:</label>
+        <select id="branch" name="branch" value="3">
+            <option value="" disabled selected>Select a Branch</option>
+            <!-- Branch options will be dynamically added here -->
+        </select>
+        <br><br>
+        <label for="program">Choose a Program:</label>
+        <select id="program" name="program">
+            <option value="" selected disabled>Select a Program</option>
+            <!-- Program options will be dynamically added here -->
+        </select>
+        <br><br>
+        <label for="semester">Choose a Semester:</label>
+        <select id="semester" name="semester">
+            <option value="" selected disabled>Choose a Semester</option>
+            <!-- Semester options will be dynamically added here -->
+        </select>
+        <br><br>
+        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <label for="sessionFromMonth">Session From:</label>
+            <select id="sessionFromMonth" name="sessionFromMonth">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        
+            <label for="sessionToMonth">To:</label>
+            <select id="sessionToMonth" name="sessionToMonth">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        
+            <select id="sessionYear" name="sessionYear">
+                <!-- Years will be dynamically added here -->
+            </select>
+        </div>
+        <!-- Add other form fields as needed -->
+
+        <!-- button to redirect to Generate Time Table page -->
+        <input type="submit" value="Generate Time Table">
+    </form>
+
+    <script>
+        $(document).ready(function() {
+
+                // Fetch and populate shifts on page load
+            $.ajax({
+                type: 'GET',  // Change this to GET since we're retrieving data
+                url: '/fetch_shifts',
+                success: function(response) {
+                    var shifts = response.shifts;
+                    var options = '';
+                    for (var i = 0; i < shifts.length; i++) {
+                        options += '<option value="' + shifts[i] + '">' + shifts[i] + '</option>';
+                    }
+                    $('#shift').html(options);
+                    // Trigger change event to load departments for the selected shift if needed
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching shifts:', error);
+                }
+            });
+
+            $('#department').change(function() {
+                var department = $(this).val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/fetch_branches',
+                    data: {'department': department},
+                    success: function(response) {
+                        var branches = response.branches;
+                        var options = '';
+                        // Iterate through branches and create options
+                        for (var i = 0; i < branches.length; i++) {
+                            options += '<option value="' + branches[i] + '">' + branches[i] + '</option>';
+                        }
+                        // Update branch dropdown
+                        $('#branch').html(options);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching branches:', error);
+                    }
+                });
+            });
+
+            $('#branch').change(function() {
+                var department = $('#department').val();
+                var branch = $(this).val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/fetch_programs',
+                    data: {'department': department, 'branch': branch},
+                    success: function(response) {
+                        var programs = response.programs;
+                        var options = '';
+                        // Iterate through programs and create options
+                        for (var i = 0; i < programs.length; i++) {
+                            options += '<option value="' + programs[i] + '">' + programs[i] + '</option>';
+                        }
+                        // Update program dropdown
+                        $('#program').html(options);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching programs:', error);
+                    }
+                });
+            });
+
+            $('#program').change(function() {
+                var department = $('#department').val();
+                var branch = $('#branch').val();
+                var program = $(this).val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/fetch_semesters',
+                    data: {'department': department, 'branch': branch, 'program': program},
+                    success: function(response) {
+                        var semesters = response.semesters;
+                        console.log(semesters);
+                        var options = '';
+                        // Iterate through semesters and create options
+                        for (var i = 0; i < semesters.length; i++) {
+                            options += '<option value="' + semesters[i] + '">' + semesters[i] + '</option>';
+                        }
+                        // Update semester dropdown
+                        $('#semester').html(options);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching semesters:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var sessionFromMonth = document.getElementById('sessionFromMonth');
+            var sessionToMonth = document.getElementById('sessionToMonth');
+            var sessionYear = document.getElementById('sessionYear');
+        
+            // Function to fill the year dropdown dynamically
+            function fillYearDropdown() {
+                var currentYear = new Date().getFullYear();
+                var earliestYear = 2020; // Adjust this as needed
+                var latestYear = currentYear + 1; // or set this to a specific year
+                for(var year = earliestYear; year <= latestYear; year++) {
+                    var option = new Option(year, year);
+                    sessionYear.options.add(option);
+                }
+            }
+        
+            fillYearDropdown(); // Call the function to fill year dropdown on page load
+        
+            // Example function to handle interactivity (adjust based on your needs)
+            function adjustDateSelection() {
+                // Example: Prevent the "To" month from being earlier than the "From" month if they choose the same year
+                // This is a simple starter idea; you may need something more complex based on your application's logic
+                var fromMonthSelectedIndex = sessionFromMonth.selectedIndex;
+                var toMonthSelectedIndex = sessionToMonth.selectedIndex;
+        
+                if(fromMonthSelectedIndex > toMonthSelectedIndex) {
+                    sessionToMonth.selectedIndex = fromMonthSelectedIndex;
+                }
+            }
+        
+            // Adding change event listeners to "From" month and "To" month dropdowns for any dynamic adjustments needed
+            sessionFromMonth.addEventListener('change', adjustDateSelection);
+            sessionToMonth.addEventListener('change', adjustDateSelection);
+        });
+        </script>
+</body>
+</html>
